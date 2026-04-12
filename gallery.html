@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#020000">
+  <title>Gallery · Zoe Lane Exclusive</title>
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body class="inner-page">
+
+  <nav class="page-nav">
+    <a class="nav-brand" href="gallery.html">Exclusive</a>
+    <div class="nav-links">
+      <a class="active" href="gallery.html">Photos</a>
+      <a href="premium.html">Videos</a>
+      <a href="account.html">Account</a>
+      <a class="logout-link" href="#" onclick="logout(); return false;">Logout</a>
+    </div>
+  </nav>
+
+  <main class="main">
+    <h1 class="section-title">Exclusive Photos</h1>
+    <p class="section-sub">new drops posted regularly</p>
+
+    <div class="photo-grid" id="photoGrid">
+      <!-- Photos will be rendered by JS -->
+    </div>
+  </main>
+
+  <!-- Lightbox -->
+  <div class="lightbox" id="lightbox">
+    <button class="lightbox-close">&times;</button>
+    <img src="" alt="Full view">
+  </div>
+
+  <footer class="site-footer">
+    &copy; 2026 Zoe Lane · Exclusive
+  </footer>
+
+  <script src="assets/js/auth.js"></script>
+  <script>
+    if (!requireAuth()) throw new Error('Not authenticated');
+
+    /* ── Photo data — add your photos here ── */
+    /* Each entry: { src: 'assets/images/photos/filename.jpg', date: 'Apr 2026' } */
+    const photos = [
+      { src: null, date: 'Coming soon' },
+      { src: null, date: 'Coming soon' },
+      { src: null, date: 'Coming soon' },
+      { src: null, date: 'Coming soon' },
+      { src: null, date: 'Coming soon' },
+      { src: null, date: 'Coming soon' },
+      { src: null, date: 'Coming soon' },
+      { src: null, date: 'Coming soon' },
+      { src: null, date: 'Coming soon' },
+      { src: null, date: 'Coming soon' },
+      { src: null, date: 'Coming soon' },
+      { src: null, date: 'Coming soon' },
+    ];
+
+    const grid = document.getElementById('photoGrid');
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = lightbox.querySelector('img');
+
+    photos.forEach((photo, i) => {
+      const card = document.createElement('div');
+      card.className = 'photo-card';
+
+      if (photo.src) {
+        card.innerHTML = `
+          <img src="${photo.src}" alt="Exclusive photo ${i + 1}" loading="lazy" decoding="async">
+          <div class="photo-date">${photo.date}</div>`;
+        card.addEventListener('click', () => {
+          lightboxImg.src = photo.src;
+          lightbox.classList.add('active');
+        });
+      } else {
+        card.innerHTML = `
+          <div class="placeholder">Photo ${i + 1}</div>
+          <div class="photo-date">${photo.date}</div>`;
+      }
+
+      grid.appendChild(card);
+    });
+
+    /* Lightbox close */
+    lightbox.addEventListener('click', (e) => {
+      if (e.target === lightbox || e.target.classList.contains('lightbox-close')) {
+        lightbox.classList.remove('active');
+        lightboxImg.src = '';
+      }
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') lightbox.classList.remove('active');
+    });
+  </script>
+
+</body>
+</html>

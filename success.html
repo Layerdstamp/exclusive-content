@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#020000">
+  <title>Welcome · Zoe Lane Exclusive</title>
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body class="inner-page">
+
+  <div class="login-wrap">
+    <div class="login-card">
+      <h1>You're In</h1>
+      <p class="tagline">subscription confirmed</p>
+      <p style="font-size:.85rem; color:rgba(255,255,255,.4); margin-bottom:32px; letter-spacing:.06em;">
+        Your payment was successful. Welcome to Zoe Lane Exclusive.
+      </p>
+      <a class="btn" href="gallery.html" id="enterBtn">Enter Gallery</a>
+    </div>
+  </div>
+
+  <script src="assets/js/auth.js"></script>
+  <script>
+    // After successful Stripe checkout, set auth and redirect
+    const params = new URLSearchParams(window.location.search);
+    const sessionId = params.get('session_id');
+
+    if (sessionId) {
+      // TODO: In production, verify the session_id with your backend
+      // For now, grant photos tier access
+      setAuth('photos');
+    }
+  </script>
+
+</body>
+</html>

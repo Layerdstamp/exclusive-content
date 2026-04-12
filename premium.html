@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#020000">
+  <title>Premium · Zoe Lane Exclusive</title>
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body class="inner-page">
+
+  <nav class="page-nav">
+    <a class="nav-brand" href="gallery.html">Exclusive</a>
+    <div class="nav-links">
+      <a href="gallery.html">Photos</a>
+      <a class="active" href="premium.html">Videos</a>
+      <a href="account.html">Account</a>
+      <a class="logout-link" href="#" onclick="logout(); return false;">Logout</a>
+    </div>
+  </nav>
+
+  <main class="main">
+    <h1 class="section-title">Premium Videos</h1>
+    <p class="section-sub">upgrade your subscription for full access</p>
+
+    <!-- Upgrade banner (shown to non-premium users) -->
+    <div class="upgrade-banner" id="upgradeBanner">
+      <h2>Unlock Videos</h2>
+      <p>Get access to exclusive video content with a premium subscription</p>
+      <div class="price">$XX<span style="font-size:.9rem; color:rgba(255,255,255,.4);">/mo</span></div>
+      <p class="price-period">cancel anytime</p>
+      <button class="btn btn-accent" onclick="upgradeToPremium()">Upgrade to Premium</button>
+    </div>
+
+    <!-- Video grid (visible to premium/admin users) -->
+    <div class="video-grid" id="videoGrid" style="display:none;">
+      <!-- Videos rendered by JS -->
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    &copy; 2026 Zoe Lane · Exclusive
+  </footer>
+
+  <script src="assets/js/auth.js"></script>
+  <script src="assets/js/stripe.js"></script>
+  <script>
+    if (!requireAuth()) throw new Error('Not authenticated');
+
+    const tier = getUserTier();
+    const hasPremium = (tier === 'premium' || tier === 'admin');
+
+    /* ── Video data — add your videos here ── */
+    /* Each entry: { src: 'assets/images/videos/filename.mp4', thumb: '...thumb.jpg', title: 'Title' } */
+    const videos = [
+      { src: null, thumb: null, title: 'Video 1' },
+      { src: null, thumb: null, title: 'Video 2' },
+      { src: null, thumb: null, title: 'Video 3' },
+      { src: null, thumb: null, title: 'Video 4' },
+      { src: null, thumb: null, title: 'Video 5' },
+      { src: null, thumb: null, title: 'Video 6' },
+    ];
+
+    const grid = document.getElementById('videoGrid');
+    const banner = document.getElementById('upgradeBanner');
+
+    if (hasPremium) {
+      banner.style.display = 'none';
+      grid.style.display = '';
+
+      videos.forEach((vid, i) => {
+        const card = document.createElement('div');
+        card.className = 'video-card';
+
+        if (vid.src) {
+          card.innerHTML = `<video src="${vid.src}" poster="${vid.thumb || ''}" controls preload="none"></video>`;
+        } else {
+          card.innerHTML = `
+            <div class="placeholder">
+              <span class="play-icon">&#9654;</span>
+              <span>${vid.title}</span>
+            </div>`;
+        }
+
+        grid.appendChild(card);
+      });
+    } else {
+      /* Show locked preview cards behind the upgrade banner */
+      grid.style.display = '';
+      videos.forEach((vid) => {
+        const card = document.createElement('div');
+        card.className = 'video-card';
+        card.innerHTML = `
+          <div class="placeholder">
+            <span class="play-icon">&#9654;</span>
+            <span>${vid.title}</span>
+          </div>
+          <div class="locked-overlay"><span class="lock-icon">&#128274;</span></div>`;
+        grid.appendChild(card);
+      });
+    }
+  </script>
+
+</body>
+</html>
