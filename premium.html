@@ -21,20 +21,36 @@
 
   <main class="main">
     <h1 class="section-title">Premium Videos</h1>
-    <p class="section-sub">upgrade your subscription for full access</p>
+    <p class="section-sub">password required</p>
 
-    <!-- Upgrade banner (shown to non-premium users) -->
-    <div class="upgrade-banner" id="upgradeBanner">
-      <h2>Unlock Videos</h2>
-      <p>Get access to exclusive video content with a premium subscription</p>
-      <div class="price">$XX<span style="font-size:.9rem; color:rgba(255,255,255,.4);">/mo</span></div>
-      <p class="price-period">cancel anytime</p>
-      <button class="btn btn-accent" onclick="upgradeToPremium()">Upgrade to Premium</button>
+    <!-- Password gate -->
+    <div id="videoGate" style="text-align:center; margin:60px auto; max-width:360px;">
+      <p style="font-size:.75rem; letter-spacing:.12em; color:rgba(255,255,255,.25); margin-bottom:24px; text-transform:uppercase;">Enter password to view</p>
+      <form id="videoPassForm" autocomplete="off" style="display:flex; flex-direction:column; gap:16px;">
+        <input type="password" id="videoPass" placeholder="••••••••" required
+          style="width:100%; padding:14px 18px; font-family:'Cormorant Garamond',Georgia,serif; font-size:1.05rem;
+          color:rgba(255,255,255,.88); background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.06);
+          border-radius:8px; outline:none; transition:border-color .4s, background .4s;">
+        <button class="btn" type="submit">Enter</button>
+      </form>
+      <p id="videoPassError" style="color:rgba(180,60,60,.7); font-size:.75rem; letter-spacing:.08em; min-height:1.2em; margin-top:8px;"></p>
     </div>
 
-    <!-- Video grid (visible to premium/admin users) -->
-    <div class="video-grid" id="videoGrid" style="display:none;">
-      <!-- Videos rendered by JS -->
+    <!-- Content (hidden until password entered) -->
+    <div id="videoContent" style="display:none;">
+      <!-- Upgrade banner (shown to non-premium users) -->
+      <div class="upgrade-banner" id="upgradeBanner">
+        <h2>Unlock Videos</h2>
+        <p>Get access to exclusive video content with a premium subscription</p>
+        <div class="price">$XX<span style="font-size:.9rem; color:rgba(255,255,255,.4);">/mo</span></div>
+        <p class="price-period">cancel anytime</p>
+        <button class="btn btn-accent" onclick="upgradeToPremium()">Upgrade to Premium</button>
+      </div>
+
+      <!-- Video grid -->
+      <div class="video-grid" id="videoGrid" style="display:none;">
+        <!-- Videos rendered by JS -->
+      </div>
     </div>
   </main>
 
@@ -50,54 +66,79 @@
     const tier = getUserTier();
     const hasPremium = (tier === 'premium' || tier === 'admin');
 
-    /* ── Video data — add your videos here ── */
-    /* Each entry: { src: 'assets/images/videos/filename.mp4', thumb: '...thumb.jpg', title: 'Title' } */
-    const videos = [
-      { src: null, thumb: null, title: 'Video 1' },
-      { src: null, thumb: null, title: 'Video 2' },
-      { src: null, thumb: null, title: 'Video 3' },
-      { src: null, thumb: null, title: 'Video 4' },
-      { src: null, thumb: null, title: 'Video 5' },
-      { src: null, thumb: null, title: 'Video 6' },
-    ];
+    /* ── Password gate for videos ── */
+    const gate = document.getElementById('videoGate');
+    const content = document.getElementById('videoContent');
 
-    const grid = document.getElementById('videoGrid');
-    const banner = document.getElementById('upgradeBanner');
+    /* Check if already unlocked this session */
+    if (sessionStorage.getItem('video_unlocked') === '1') {
+      gate.style.display = 'none';
+      content.style.display = '';
+      renderVideos();
+    }
 
-    if (hasPremium) {
-      banner.style.display = 'none';
-      grid.style.display = '';
+    document.getElementById('videoPassForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const pw = document.getElementById('videoPass').value;
+      const valid = await verifyAdmin(pw);
+      if (valid) {
+        sessionStorage.setItem('video_unlocked', '1');
+        gate.style.display = 'none';
+        content.style.display = '';
+        renderVideos();
+      } else {
+        document.getElementById('videoPassError').textContent = 'Wrong password';
+      }
+    });
 
-      videos.forEach((vid, i) => {
-        const card = document.createElement('div');
-        card.className = 'video-card';
+    function renderVideos() {
+      /* ── Video data — add your videos here ── */
+      const videos = [
+        { src: null, thumb: null, title: 'Video 1' },
+        { src: null, thumb: null, title: 'Video 2' },
+        { src: null, thumb: null, title: 'Video 3' },
+        { src: null, thumb: null, title: 'Video 4' },
+        { src: null, thumb: null, title: 'Video 5' },
+        { src: null, thumb: null, title: 'Video 6' },
+      ];
 
-        if (vid.src) {
-          card.innerHTML = `<video src="${vid.src}" poster="${vid.thumb || ''}" controls preload="none"></video>`;
-        } else {
+      const grid = document.getElementById('videoGrid');
+      const banner = document.getElementById('upgradeBanner');
+
+      if (hasPremium) {
+        banner.style.display = 'none';
+        grid.style.display = '';
+
+        videos.forEach((vid, i) => {
+          const card = document.createElement('div');
+          card.className = 'video-card';
+
+          if (vid.src) {
+            card.innerHTML = `<video src="${vid.src}" poster="${vid.thumb || ''}" controls preload="none"></video>`;
+          } else {
+            card.innerHTML = `
+              <div class="placeholder">
+                <span class="play-icon">&#9654;</span>
+                <span>${vid.title}</span>
+              </div>`;
+          }
+
+          grid.appendChild(card);
+        });
+      } else {
+        grid.style.display = '';
+        videos.forEach((vid) => {
+          const card = document.createElement('div');
+          card.className = 'video-card';
           card.innerHTML = `
             <div class="placeholder">
               <span class="play-icon">&#9654;</span>
               <span>${vid.title}</span>
-            </div>`;
-        }
-
-        grid.appendChild(card);
-      });
-    } else {
-      /* Show locked preview cards behind the upgrade banner */
-      grid.style.display = '';
-      videos.forEach((vid) => {
-        const card = document.createElement('div');
-        card.className = 'video-card';
-        card.innerHTML = `
-          <div class="placeholder">
-            <span class="play-icon">&#9654;</span>
-            <span>${vid.title}</span>
-          </div>
-          <div class="locked-overlay"><span class="lock-icon">&#128274;</span></div>`;
-        grid.appendChild(card);
-      });
+            </div>
+            <div class="locked-overlay"><span class="lock-icon">&#128274;</span></div>`;
+          grid.appendChild(card);
+        });
+      }
     }
   </script>
 
