@@ -9,7 +9,7 @@
 </head>
 <body>
 
-  <!-- Slideshow background -->
+  <!-- Ken Burns slideshow background -->
   <div class="login-bg">
     <img src="assets/images/login/face-1.jpg" class="active" alt="">
     <img src="assets/images/login/face-2.jpg" alt="">
@@ -21,19 +21,36 @@
   </div>
   <div class="login-overlay"></div>
 
+  <!-- Floating particles -->
+  <div class="particles">
+    <span></span><span></span><span></span><span></span><span></span>
+    <span></span><span></span><span></span><span></span><span></span>
+  </div>
+
   <!-- Login card -->
   <div class="login-wrap">
     <div class="login-card">
       <h1>Exclusive</h1>
       <p class="tagline">by Zoe Lane</p>
 
+      <!-- Photo strip teaser -->
+      <div class="photo-strip">
+        <img src="assets/images/login/face-1.jpg" alt="">
+        <img src="assets/images/login/face-3.jpg" alt="">
+        <img src="assets/images/login/face-5.jpg" alt="">
+        <img src="assets/images/login/face-7.jpg" alt="">
+        <img src="assets/images/login/face-2.jpg" alt="">
+        <img src="assets/images/login/face-4.jpg" alt="">
+        <img src="assets/images/login/face-6.jpg" alt="">
+      </div>
+
       <!-- Login form for returning subscribers -->
       <form class="login-form" id="loginForm" autocomplete="off">
-        <div>
+        <div class="form-field">
           <label for="email">Email</label>
           <input type="email" id="email" placeholder="your@email.com" required>
         </div>
-        <div>
+        <div class="form-field">
           <label for="password">Password</label>
           <input type="password" id="password" placeholder="••••••••" required>
         </div>
@@ -45,14 +62,17 @@
 
       <!-- Subscribe button -->
       <button class="btn btn-accent" id="subscribeBtn">Subscribe</button>
-      <p style="margin-top:10px; font-size:.7rem; color:rgba(255,255,255,.2); letter-spacing:.08em;">
+      <p style="margin-top:12px; font-size:.65rem; color:rgba(255,255,255,.18); letter-spacing:.1em; font-style:italic;">
         Monthly access to exclusive photos
       </p>
 
-      <!-- Admin backdoor — very subtle -->
+      <!-- Admin backdoor — nearly invisible dot -->
       <button class="admin-btn" id="adminBtn">·</button>
     </div>
   </div>
+
+  <!-- Toast container -->
+  <div class="toast" id="toast"></div>
 
   <script src="assets/js/auth.js"></script>
   <script src="assets/js/stripe.js"></script>
@@ -62,23 +82,20 @@
       window.location.href = 'gallery.html';
     }
 
-    /* ── Background slideshow ── */
+    /* ── Ken Burns slideshow ── */
     const slides = document.querySelectorAll('.login-bg img');
     let current = 0;
     setInterval(() => {
       slides[current].classList.remove('active');
       current = (current + 1) % slides.length;
       slides[current].classList.add('active');
-    }, 5000);
+    }, 6000);
 
-    /* ── Login form (for subscribers — will integrate with Stripe backend) ── */
+    /* ── Login form ── */
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('email').value;
       const pass = document.getElementById('password').value;
-
-      // TODO: In production, verify against your Stripe customer database
-      // For now, show a message
       document.getElementById('loginError').textContent =
         'Subscriber login will be active once Stripe is configured.';
     });
