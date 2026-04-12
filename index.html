@@ -2,49 +2,44 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <meta name="theme-color" content="#020000">
   <title>Zoe Lane · Exclusive</title>
   <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 <body>
 
-  <!-- Ken Burns slideshow background -->
+  <!-- Fixed background photo (same as main site) -->
   <div class="login-bg">
-    <img src="assets/images/login/face-1.jpg" class="active" alt="">
-    <img src="assets/images/login/face-2.jpg" alt="">
-    <img src="assets/images/login/face-3.jpg" alt="">
-    <img src="assets/images/login/face-4.jpg" alt="">
-    <img src="assets/images/login/face-5.jpg" alt="">
-    <img src="assets/images/login/face-6.jpg" alt="">
-    <img src="assets/images/login/face-7.jpg" alt="">
-  </div>
-  <div class="login-overlay"></div>
-
-  <!-- Floating particles -->
-  <div class="particles">
-    <span></span><span></span><span></span><span></span><span></span>
-    <span></span><span></span><span></span><span></span><span></span>
+    <img src="assets/images/login/background.jpg" alt="" fetchpriority="high" decoding="async">
   </div>
 
-  <!-- Login card -->
-  <div class="login-wrap">
+  <!-- Hero zone: transparent window into background -->
+  <div class="login-hero">
+    <h1 class="login-hero-title">Exclusive</h1>
+    <p class="login-hero-sub">by Zoe Lane</p>
+    <div class="login-hero-scroll">
+      <span>scroll</span>
+      <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+    </div>
+  </div>
+
+  <!-- Content panel: scrolls up over the background -->
+  <div class="login-panel">
     <div class="login-card">
-      <h1>Exclusive</h1>
-      <p class="tagline">by Zoe Lane</p>
 
       <!-- Photo strip teaser -->
       <div class="photo-strip">
-        <img src="assets/images/login/face-1.jpg" alt="">
-        <img src="assets/images/login/face-3.jpg" alt="">
-        <img src="assets/images/login/face-5.jpg" alt="">
-        <img src="assets/images/login/face-7.jpg" alt="">
-        <img src="assets/images/login/face-2.jpg" alt="">
-        <img src="assets/images/login/face-4.jpg" alt="">
-        <img src="assets/images/login/face-6.jpg" alt="">
+        <img src="assets/images/login/face-1.jpg" alt="" loading="lazy" decoding="async">
+        <img src="assets/images/login/face-3.jpg" alt="" loading="lazy" decoding="async">
+        <img src="assets/images/login/face-5.jpg" alt="" loading="lazy" decoding="async">
+        <img src="assets/images/login/face-7.jpg" alt="" loading="lazy" decoding="async">
+        <img src="assets/images/login/face-2.jpg" alt="" loading="lazy" decoding="async">
+        <img src="assets/images/login/face-4.jpg" alt="" loading="lazy" decoding="async">
+        <img src="assets/images/login/face-6.jpg" alt="" loading="lazy" decoding="async">
       </div>
 
-      <!-- Login form for returning subscribers -->
+      <!-- Login form -->
       <form class="login-form" id="loginForm" autocomplete="off">
         <div class="form-field">
           <label for="email">Email</label>
@@ -77,35 +72,20 @@
   <script src="assets/js/auth.js"></script>
   <script src="assets/js/stripe.js"></script>
   <script>
-    /* ── If already authenticated, go straight in ── */
     if (isAuthenticated()) {
       window.location.href = 'gallery.html';
     }
 
-    /* ── Ken Burns slideshow ── */
-    const slides = document.querySelectorAll('.login-bg img');
-    let current = 0;
-    setInterval(() => {
-      slides[current].classList.remove('active');
-      current = (current + 1) % slides.length;
-      slides[current].classList.add('active');
-    }, 6000);
-
-    /* ── Login form ── */
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const email = document.getElementById('email').value;
-      const pass = document.getElementById('password').value;
       document.getElementById('loginError').textContent =
         'Subscriber login will be active once Stripe is configured.';
     });
 
-    /* ── Subscribe button ── */
     document.getElementById('subscribeBtn').addEventListener('click', () => {
       startCheckout('photos');
     });
 
-    /* ── Admin backdoor ── */
     document.getElementById('adminBtn').addEventListener('click', async () => {
       const pw = prompt('');
       if (pw === null) return;
