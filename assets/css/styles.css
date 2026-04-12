@@ -334,16 +334,22 @@ img { display:block; max-width:100%; }
 /* ── Admin button (nearly invisible) ─────── */
 .admin-btn {
   margin-top: 28px;
-  font-size: .55rem;
-  color: rgba(255,255,255,.06);
-  background: transparent;
-  border: none;
-  padding: 8px 16px;
+  font-size: 1.1rem;
+  color: rgba(255,255,255,.25);
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.08);
+  padding: 10px 20px;
+  border-radius: 50%;
   cursor: pointer;
-  transition: color .3s;
+  transition: color .3s, background .3s, border-color .3s;
   font-family: 'Cormorant Garamond', Georgia, serif;
+  line-height: 1;
 }
-.admin-btn:hover { color: rgba(255,255,255,.15); }
+.admin-btn:hover {
+  color: rgba(255,255,255,.5);
+  background: rgba(255,255,255,.06);
+  border-color: rgba(255,255,255,.15);
+}
 
 .login-error {
   color: rgba(180,60,60,.7);
