@@ -55,13 +55,33 @@
         return;
       }
 
-      document.getElementById('fanBtn').addEventListener('click', function() {
-        startCheckout('fan');
+      const auth = JSON.parse(localStorage.getItem('zl_auth') || 'null');
+      const isDemo = auth?._demo;
+
+      document.getElementById('fanBtn').addEventListener('click', async function() {
+        if (isDemo) {
+          demoSetTier('fan');
+          window.location.href = 'gallery.html';
+        } else {
+          await startCheckout('fan');
+        }
       });
 
-      document.getElementById('superfanBtn').addEventListener('click', function() {
-        startCheckout('superfan');
+      document.getElementById('superfanBtn').addEventListener('click', async function() {
+        if (isDemo) {
+          demoSetTier('superfan');
+          window.location.href = 'gallery.html';
+        } else {
+          await startCheckout('superfan');
+        }
       });
+
+      if (isDemo) {
+        const note = document.createElement('p');
+        note.style.cssText = 'text-align:center;margin-top:18px;font-size:.7rem;color:rgba(255,200,100,.4);letter-spacing:.08em;';
+        note.textContent = 'demo mode — payment will be activated once Stripe is connected';
+        document.querySelector('.main').appendChild(note);
+      }
     })();
   </script>
 </body>

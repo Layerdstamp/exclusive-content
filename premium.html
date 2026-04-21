@@ -53,55 +53,47 @@
 
     const tier = getUserTier();
     const hasSuperfan = (tier === 'superfan');
-    renderVideos(hasSuperfan);
 
-    function renderVideos(hasSuperfan) {
-      /* ── Video data — add your videos here ── */
-      const videos = [
-        { src: null, thumb: null, title: 'Video 1' },
-        { src: null, thumb: null, title: 'Video 2' },
-        { src: null, thumb: null, title: 'Video 3' },
-        { src: null, thumb: null, title: 'Video 4' },
-        { src: null, thumb: null, title: 'Video 5' },
-        { src: null, thumb: null, title: 'Video 6' },
-      ];
+    /* Load video manifest */
+    let filenames = [];
+    try {
+      const resp = await fetch('assets/data/videos.json');
+      filenames = await resp.json();
+    } catch {}
 
-      const grid = document.getElementById('videoGrid');
-      const banner = document.getElementById('upgradeBanner');
+    const grid = document.getElementById('videoGrid');
+    const banner = document.getElementById('upgradeBanner');
 
-      if (hasSuperfan) {
-        banner.style.display = 'none';
-        grid.style.display = '';
+    if (hasSuperfan) {
+      banner.style.display = 'none';
+      grid.style.display = '';
 
-        videos.forEach((vid, i) => {
-          const card = document.createElement('div');
-          card.className = 'video-card';
-
-          if (vid.src) {
-            card.innerHTML = `<video src="${vid.src}" poster="${vid.thumb || ''}" controls preload="none"></video>`;
-          } else {
-            card.innerHTML = `
-              <div class="placeholder">
-                <span class="play-icon">&#9654;</span>
-                <span>${vid.title}</span>
-              </div>`;
-          }
-
-          grid.appendChild(card);
-        });
+      if (filenames.length === 0) {
+        grid.innerHTML = '<p style="color:rgba(255,255,255,.3);text-align:center;grid-column:1/-1;padding:40px 0;">Videos coming soon.</p>';
       } else {
-        grid.style.display = '';
-        videos.forEach((vid) => {
+        filenames.forEach((name) => {
           const card = document.createElement('div');
           card.className = 'video-card';
-          card.innerHTML = `
-            <div class="placeholder">
-              <span class="play-icon">&#9654;</span>
-              <span>${vid.title}</span>
-            </div>
-            <div class="locked-overlay"><span class="lock-icon">&#128274;</span></div>`;
+          const src = 'assets/videos/' + encodeURIComponent(name);
+          const label = name.replace(/\.[^.]+$/, '');
+          card.innerHTML = `<video src="${src}" title="${label}" controls preload="none" playsinline></video>`;
           grid.appendChild(card);
         });
+      }
+    } else {
+      /* Fan sees locked previews + upgrade banner */
+      grid.style.display = '';
+      const count = filenames.length || 10;
+      for (let i = 0; i < Math.min(count, 6); i++) {
+        const card = document.createElement('div');
+        card.className = 'video-card';
+        card.innerHTML = `
+          <div class="placeholder">
+            <span class="play-icon">&#9654;</span>
+            <span>Video ${i + 1}</span>
+          </div>
+          <div class="locked-overlay"><span class="lock-icon">&#128274;</span></div>`;
+        grid.appendChild(card);
       }
     }
     })();

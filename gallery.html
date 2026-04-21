@@ -44,49 +44,47 @@
     const ok = await requireAuth({ minTier: 'fan' });
     if (!ok) return;
 
-    /* ── Photo data — add your photos here ── */
-    /* Each entry: { src: 'assets/images/photos/filename.jpg', date: 'Apr 2026' } */
-    const photos = [
-      { src: null, date: 'Coming soon' },
-      { src: null, date: 'Coming soon' },
-      { src: null, date: 'Coming soon' },
-      { src: null, date: 'Coming soon' },
-      { src: null, date: 'Coming soon' },
-      { src: null, date: 'Coming soon' },
-      { src: null, date: 'Coming soon' },
-      { src: null, date: 'Coming soon' },
-      { src: null, date: 'Coming soon' },
-      { src: null, date: 'Coming soon' },
-      { src: null, date: 'Coming soon' },
-      { src: null, date: 'Coming soon' },
-    ];
-
     const grid = document.getElementById('photoGrid');
     const lightbox = document.getElementById('lightbox');
     const lightboxImg = lightbox.querySelector('img');
+    let allPhotos = [];
+    let lightboxIdx = 0;
 
-    photos.forEach((photo, i) => {
+    /* Load photo manifest */
+    let filenames = [];
+    try {
+      const resp = await fetch('assets/data/photos.json');
+      filenames = await resp.json();
+    } catch {}
+
+    if (filenames.length === 0) {
+      grid.innerHTML = '<p style="color:rgba(255,255,255,.3);text-align:center;grid-column:1/-1;padding:40px 0;">Photos coming soon.</p>';
+      return;
+    }
+
+    allPhotos = filenames.map(name => ({
+      src: 'assets/images/photos/' + encodeURIComponent(name),
+      label: name.replace(/\.[^.]+$/, '')
+    }));
+
+    allPhotos.forEach((photo, i) => {
       const card = document.createElement('div');
       card.className = 'photo-card';
-
-      if (photo.src) {
-        card.innerHTML = `
-          <img src="${photo.src}" alt="Relax with Zoe Lane photo ${i + 1}" loading="lazy" decoding="async">
-          <div class="photo-date">${photo.date}</div>`;
-        card.addEventListener('click', () => {
-          lightboxImg.src = photo.src;
-          lightbox.classList.add('active');
-        });
-      } else {
-        card.innerHTML = `
-          <div class="placeholder">Photo ${i + 1}</div>
-          <div class="photo-date">${photo.date}</div>`;
-      }
-
+      card.innerHTML = `<img src="${photo.src}" alt="Relax with Zoe Lane" loading="lazy" decoding="async">`;
+      card.addEventListener('click', () => {
+        lightboxIdx = i;
+        lightboxImg.src = photo.src;
+        lightbox.classList.add('active');
+      });
       grid.appendChild(card);
     });
 
-    /* Lightbox close */
+    /* Lightbox nav */
+    function lightboxNav(dir) {
+      lightboxIdx = (lightboxIdx + dir + allPhotos.length) % allPhotos.length;
+      lightboxImg.src = allPhotos[lightboxIdx].src;
+    }
+
     lightbox.addEventListener('click', (e) => {
       if (e.target === lightbox || e.target.classList.contains('lightbox-close')) {
         lightbox.classList.remove('active');
@@ -95,6 +93,10 @@
     });
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') lightbox.classList.remove('active');
+      if (lightbox.classList.contains('active')) {
+        if (e.key === 'ArrowRight') lightboxNav(1);
+        if (e.key === 'ArrowLeft') lightboxNav(-1);
+      }
     });
     })();
   </script>
