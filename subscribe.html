@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#020000">
+  <title>Choose Plan · Relax with Zoe Lane</title>
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body class="inner-page">
+
+  <nav class="page-nav">
+    <a class="nav-brand" href="index.html">Relax with Zoe Lane</a>
+    <div class="nav-links">
+      <a class="active" href="subscribe.html">Plans</a>
+      <a href="index.html">Sign In</a>
+    </div>
+  </nav>
+
+  <main class="main">
+    <h1 class="section-title">Choose Your Plan</h1>
+    <p class="section-sub">subscribe after account creation</p>
+
+    <div class="plans-grid">
+      <article class="plan-card">
+        <h2>Fan</h2>
+        <p class="plan-price">$2.22<span>/mo</span></p>
+        <p class="plan-desc">Access to the Relax with Zoe Lane photo section.</p>
+        <button class="btn" id="fanBtn">Start Fan</button>
+      </article>
+
+      <article class="plan-card plan-card-accent">
+        <h2>Superfan</h2>
+        <p class="plan-price">$9.99<span>/mo</span></p>
+        <p class="plan-desc">Access to both photos and videos.</p>
+        <button class="btn btn-accent" id="superfanBtn">Start Superfan</button>
+      </article>
+    </div>
+
+    <p style="text-align:center; margin-top:26px; font-size:.75rem; color:rgba(255,255,255,.3);">
+      You can upgrade any time from your account page.
+    </p>
+  </main>
+
+  <script src="assets/js/auth.js"></script>
+  <script src="assets/js/stripe.js"></script>
+  <script>
+    (async function() {
+      const ok = await requireAuth({ minTier: 'none' });
+      if (!ok) return;
+
+      const tier = getUserTier();
+      if (tier === 'fan' || tier === 'superfan') {
+        window.location.href = 'gallery.html';
+        return;
+      }
+
+      document.getElementById('fanBtn').addEventListener('click', function() {
+        startCheckout('fan');
+      });
+
+      document.getElementById('superfanBtn').addEventListener('click', function() {
+        startCheckout('superfan');
+      });
+    })();
+  </script>
+</body>
+</html>

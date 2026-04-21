@@ -1,67 +1,121 @@
-/* ──────────────────────────────────────────
-   AUTH MODULE
-   SHA-256 hashed password — cannot be reversed
-   ────────────────────────────────────────── */
+const AUTH_KEY = 'zl_auth';
 
-const ADMIN_HASH = '247a0bb794f67c4f9cadcfa9651b52d2428ae596587beccb205ec165d4c06f4b';
-
-async function sha256(text) {
-  const data = new TextEncoder().encode(text);
-  const buf = await crypto.subtle.digest('SHA-256', data);
-  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+function readAuth() {
+  const raw = localStorage.getItem(AUTH_KEY);
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
 }
 
-/* Check if user has an active session */
+function writeAuth(data) {
+  localStorage.setItem(AUTH_KEY, JSON.stringify(data));
+}
+
+function authHeader() {
+  const auth = readAuth();
+  return auth?.token ? { Authorization: `Bearer ${auth.token}` } : {};
+}
+
+async function api(path, options = {}) {
+  const res = await fetch(path, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...authHeader(),
+      ...(options.headers || {})
+    }
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'Request failed');
+  return data;
+}
+
 function isAuthenticated() {
-  const session = sessionStorage.getItem('zl_auth');
-  if (!session) return false;
-  try {
-    const data = JSON.parse(session);
-    // Session valid for 24 hours
-    return data.authenticated && (Date.now() - data.timestamp < 86400000);
-  } catch { return false; }
+  const auth = readAuth();
+  return Boolean(auth?.token && auth?.user);
 }
 
-/* Get current user tier */
+function getCurrentUser() {
+  const auth = readAuth();
+  return auth?.user || null;
+}
+
 function getUserTier() {
-  const session = sessionStorage.getItem('zl_auth');
-  if (!session) return null;
+  return getCurrentUser()?.tier || 'none';
+}
+
+function isSuperfan() {
+  return getUserTier() === 'superfan';
+}
+
+function isFanOrHigher() {
+  const tier = getUserTier();
+  return tier === 'fan' || tier === 'superfan';
+}
+
+async function registerAccount({ name, email, password }) {
+  const data = await api('/api/register', {
+    method: 'POST',
+    body: JSON.stringify({ name, email, password })
+  });
+  writeAuth({ token: data.token, user: data.user });
+  return data.user;
+}
+
+async function loginAccount({ email, password }) {
+  const data = await api('/api/login', {
+    method: 'POST',
+    body: JSON.stringify({ email, password })
+  });
+  writeAuth({ token: data.token, user: data.user });
+  return data.user;
+}
+
+async function refreshCurrentUser() {
+  const data = await api('/api/me', { method: 'GET' });
+  const auth = readAuth();
+  writeAuth({ token: auth.token, user: data.user });
+  return data.user;
+}
+
+async function logout() {
   try {
-    return JSON.parse(session).tier || 'photos';
-  } catch { return null; }
-}
-
-/* Set auth session */
-function setAuth(tier = 'admin') {
-  sessionStorage.setItem('zl_auth', JSON.stringify({
-    authenticated: true,
-    tier: tier,
-    timestamp: Date.now()
-  }));
-}
-
-/* Clear session */
-function logout() {
-  sessionStorage.removeItem('zl_auth');
+    await api('/api/logout', { method: 'POST', body: '{}' });
+  } catch {}
+  localStorage.removeItem(AUTH_KEY);
+  sessionStorage.removeItem('video_unlocked');
   window.location.href = 'index.html';
 }
 
-/* Admin password check */
-async function verifyAdmin(password) {
-  const hash = await sha256(password);
-  return hash === ADMIN_HASH;
-}
-
-/* Protect a page — redirect to login if not authed */
-function requireAuth() {
+async function requireAuth({ minTier = 'fan' } = {}) {
   if (!isAuthenticated()) {
     window.location.href = 'index.html';
     return false;
   }
+
+  try {
+    await refreshCurrentUser();
+  } catch {
+    localStorage.removeItem(AUTH_KEY);
+    window.location.href = 'index.html';
+    return false;
+  }
+
+  if (minTier === 'fan' && !isFanOrHigher()) {
+    window.location.href = 'subscribe.html';
+    return false;
+  }
+  if (minTier === 'superfan' && !isSuperfan()) {
+    window.location.href = 'subscribe.html';
+    return false;
+  }
+
   return true;
 }
 
-/* Show toast notification */
 function showToast(message, duration = 3000) {
   let toast = document.querySelector('.toast');
   if (!toast) {

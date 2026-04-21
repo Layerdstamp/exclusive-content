@@ -4,13 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#020000">
-  <title>Gallery · Zoe Lane Exclusive</title>
+  <title>Gallery · Relax with Zoe Lane</title>
   <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 <body class="inner-page">
 
   <nav class="page-nav">
-    <a class="nav-brand" href="gallery.html">Exclusive</a>
+    <a class="nav-brand" href="gallery.html">Relax with Zoe Lane</a>
     <div class="nav-links">
       <a class="active" href="gallery.html">Photos</a>
       <a href="premium.html">Videos</a>
@@ -20,7 +20,7 @@
   </nav>
 
   <main class="main">
-    <h1 class="section-title">Exclusive Photos</h1>
+    <h1 class="section-title">Relax with Zoe Lane Photos</h1>
     <p class="section-sub">new drops posted regularly</p>
 
     <div class="photo-grid" id="photoGrid">
@@ -35,12 +35,14 @@
   </div>
 
   <footer class="site-footer">
-    &copy; 2026 Zoe Lane · Exclusive
+    &copy; 2026 Relax with Zoe Lane
   </footer>
 
   <script src="assets/js/auth.js"></script>
   <script>
-    if (!requireAuth()) throw new Error('Not authenticated');
+    (async function() {
+    const ok = await requireAuth({ minTier: 'fan' });
+    if (!ok) return;
 
     /* ── Photo data — add your photos here ── */
     /* Each entry: { src: 'assets/images/photos/filename.jpg', date: 'Apr 2026' } */
@@ -69,7 +71,7 @@
 
       if (photo.src) {
         card.innerHTML = `
-          <img src="${photo.src}" alt="Exclusive photo ${i + 1}" loading="lazy" decoding="async">
+          <img src="${photo.src}" alt="Relax with Zoe Lane photo ${i + 1}" loading="lazy" decoding="async">
           <div class="photo-date">${photo.date}</div>`;
         card.addEventListener('click', () => {
           lightboxImg.src = photo.src;
@@ -94,6 +96,7 @@
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') lightbox.classList.remove('active');
     });
+    })();
   </script>
 
 </body>

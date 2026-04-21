@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#020000">
-  <title>Welcome · Zoe Lane Exclusive</title>
+  <title>Welcome · Relax with Zoe Lane</title>
   <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 <body class="inner-page">
@@ -14,7 +14,7 @@
       <h1>You're In</h1>
       <p class="tagline">subscription confirmed</p>
       <p style="font-size:.85rem; color:rgba(255,255,255,.4); margin-bottom:32px; letter-spacing:.06em;">
-        Your payment was successful. Welcome to Zoe Lane Exclusive.
+        Your payment was successful. Welcome to Relax with Zoe Lane.
       </p>
       <a class="btn" href="gallery.html" id="enterBtn">Enter Gallery</a>
     </div>
@@ -22,15 +22,27 @@
 
   <script src="assets/js/auth.js"></script>
   <script>
-    // After successful Stripe checkout, set auth and redirect
-    const params = new URLSearchParams(window.location.search);
-    const sessionId = params.get('session_id');
+    (async function() {
+      const params = new URLSearchParams(window.location.search);
+      const sessionId = params.get('session_id');
+      if (!sessionId || !isAuthenticated()) return;
 
-    if (sessionId) {
-      // TODO: In production, verify the session_id with your backend
-      // For now, grant photos tier access
-      setAuth('photos');
-    }
+      try {
+        const auth = JSON.parse(localStorage.getItem('zl_auth') || '{}');
+        const res = await fetch('/api/checkout-complete', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + auth.token
+          },
+          body: JSON.stringify({ sessionId })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Unable to confirm subscription');
+
+        localStorage.setItem('zl_auth', JSON.stringify({ token: auth.token, user: data.user }));
+      } catch {}
+    })();
   </script>
 
 </body>

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <meta name="theme-color" content="#020000">
-  <title>Zoe Lane · Exclusive</title>
+  <title>Relax with Zoe Lane</title>
   <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 <body>
@@ -18,7 +18,7 @@
   <div class="login-wrapper">
     <div class="login-card">
 
-      <h1 class="login-title">Exclusive</h1>
+      <h1 class="login-title">Relax with Zoe Lane</h1>
       <p class="login-sub">by Zoe Lane</p>
 
       <!-- Photo strip teaser -->
@@ -31,6 +31,25 @@
         <img src="assets/images/login/face-4.jpg" alt="" loading="lazy" decoding="async">
         <img src="assets/images/login/face-6.jpg" alt="" loading="lazy" decoding="async">
       </div>
+
+      <form class="login-form" id="createForm" autocomplete="off">
+        <div class="form-field">
+          <label for="createName">Name</label>
+          <input type="text" id="createName" placeholder="Your name" required>
+        </div>
+        <div class="form-field">
+          <label for="createEmail">Email</label>
+          <input type="email" id="createEmail" placeholder="your@email.com" required>
+        </div>
+        <div class="form-field">
+          <label for="createPassword">Create Password</label>
+          <input type="password" id="createPassword" placeholder="At least 8 characters" required minlength="8">
+        </div>
+        <button class="btn btn-accent" type="submit">Create Account</button>
+        <p class="login-error" id="createError"></p>
+      </form>
+
+      <div class="login-divider"><span>already have an account?</span></div>
 
       <!-- Login form -->
       <form class="login-form" id="loginForm" autocomplete="off">
@@ -46,16 +65,9 @@
         <p class="login-error" id="loginError"></p>
       </form>
 
-      <div class="login-divider"><span>new here?</span></div>
-
-      <!-- Subscribe button -->
-      <button class="btn btn-accent" id="subscribeBtn">Subscribe</button>
       <p style="margin-top:12px; font-size:.65rem; color:rgba(255,255,255,.18); letter-spacing:.1em; font-style:italic;">
-        Monthly access to exclusive photos
+        Accounts are created first, then you choose your subscription plan.
       </p>
-
-      <!-- Admin backdoor -->
-      <button class="admin-btn" id="adminBtn">★</button>
     </div>
   </div>
 
@@ -66,28 +78,38 @@
   <script src="assets/js/stripe.js"></script>
   <script>
     if (isAuthenticated()) {
-      window.location.href = 'gallery.html';
+      const tier = getUserTier();
+      window.location.href = (tier === 'fan' || tier === 'superfan') ? 'gallery.html' : 'subscribe.html';
     }
+
+    document.getElementById('createForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const err = document.getElementById('createError');
+      err.textContent = '';
+      try {
+        await registerAccount({
+          name: document.getElementById('createName').value,
+          email: document.getElementById('createEmail').value,
+          password: document.getElementById('createPassword').value
+        });
+        window.location.href = 'subscribe.html';
+      } catch (error) {
+        err.textContent = error.message || 'Unable to create account.';
+      }
+    });
 
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      document.getElementById('loginError').textContent =
-        'Subscriber login will be active once Stripe is configured.';
-    });
-
-    document.getElementById('subscribeBtn').addEventListener('click', () => {
-      startCheckout('photos');
-    });
-
-    document.getElementById('adminBtn').addEventListener('click', async () => {
-      const pw = prompt('');
-      if (pw === null) return;
-      const valid = await verifyAdmin(pw);
-      if (valid) {
-        setAuth('admin');
-        window.location.href = 'gallery.html';
-      } else {
-        showToast('Invalid');
+      const err = document.getElementById('loginError');
+      err.textContent = '';
+      try {
+        const user = await loginAccount({
+          email: document.getElementById('email').value,
+          password: document.getElementById('password').value
+        });
+        window.location.href = (user.tier === 'fan' || user.tier === 'superfan') ? 'gallery.html' : 'subscribe.html';
+      } catch (error) {
+        err.textContent = error.message || 'Unable to sign in.';
       }
     });
   </script>

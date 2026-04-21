@@ -4,13 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#020000">
-  <title>Account · Zoe Lane Exclusive</title>
+  <title>Account · Relax with Zoe Lane</title>
   <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 <body class="inner-page">
 
   <nav class="page-nav">
-    <a class="nav-brand" href="gallery.html">Exclusive</a>
+    <a class="nav-brand" href="gallery.html">Relax with Zoe Lane</a>
     <div class="nav-links">
       <a href="gallery.html">Photos</a>
       <a href="premium.html">Videos</a>
@@ -44,8 +44,8 @@
 
     <!-- Upgrade CTA for photo-only subs -->
     <div id="upgradeSection" style="text-align:center; margin-top:36px; display:none;">
-      <button class="btn btn-accent btn-small" onclick="upgradeToPremium()">Upgrade to Premium</button>
-      <p style="margin-top:8px; font-size:.7rem; color:rgba(255,255,255,.2);">Unlock exclusive video content</p>
+      <button class="btn btn-accent btn-small" onclick="upgradeToSuperfan()">Upgrade to Superfan</button>
+      <p style="margin-top:8px; font-size:.7rem; color:rgba(255,255,255,.2);">Unlock videos with Superfan access.</p>
     </div>
 
     <!-- Manage subscription -->
@@ -60,30 +60,30 @@
   </main>
 
   <footer class="site-footer">
-    &copy; 2026 Zoe Lane · Exclusive
+    &copy; 2026 Relax with Zoe Lane
   </footer>
 
   <script src="assets/js/auth.js"></script>
   <script src="assets/js/stripe.js"></script>
   <script>
-    if (!requireAuth()) throw new Error('Not authenticated');
+    (async function() {
+    const ok = await requireAuth({ minTier: 'fan' });
+    if (!ok) return;
 
     const tier = getUserTier();
     const tierEl = document.getElementById('tierVal');
     const accessEl = document.getElementById('accessVal');
     const upgradeSection = document.getElementById('upgradeSection');
 
-    if (tier === 'admin') {
-      tierEl.innerHTML = '<span class="tier-badge tier-premium">Admin</span>';
-      accessEl.textContent = 'Photos + Videos (full access)';
-    } else if (tier === 'premium') {
-      tierEl.innerHTML = '<span class="tier-badge tier-premium">Premium</span>';
+    if (tier === 'superfan') {
+      tierEl.innerHTML = '<span class="tier-badge tier-premium">Superfan</span>';
       accessEl.textContent = 'Photos + Videos';
     } else {
-      tierEl.innerHTML = '<span class="tier-badge tier-photos">Photos</span>';
-      accessEl.textContent = 'Exclusive Photos';
+      tierEl.innerHTML = '<span class="tier-badge tier-photos">Fan</span>';
+      accessEl.textContent = 'Photos';
       upgradeSection.style.display = '';
     }
+    })();
   </script>
 
 </body>

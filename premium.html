@@ -4,13 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#020000">
-  <title>Premium · Zoe Lane Exclusive</title>
+  <title>Superfan Videos · Relax with Zoe Lane</title>
   <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 <body class="inner-page">
 
   <nav class="page-nav">
-    <a class="nav-brand" href="gallery.html">Exclusive</a>
+    <a class="nav-brand" href="gallery.html">Relax with Zoe Lane</a>
     <div class="nav-links">
       <a href="gallery.html">Photos</a>
       <a class="active" href="premium.html">Videos</a>
@@ -20,31 +20,17 @@
   </nav>
 
   <main class="main">
-    <h1 class="section-title">Premium Videos</h1>
-    <p class="section-sub">password required</p>
+    <h1 class="section-title">Superfan Videos</h1>
+    <p class="section-sub">for superfan subscribers</p>
 
-    <!-- Password gate -->
-    <div id="videoGate" style="text-align:center; margin:60px auto; max-width:360px;">
-      <p style="font-size:.75rem; letter-spacing:.12em; color:rgba(255,255,255,.25); margin-bottom:24px; text-transform:uppercase;">Enter password to view</p>
-      <form id="videoPassForm" autocomplete="off" style="display:flex; flex-direction:column; gap:16px;">
-        <input type="password" id="videoPass" placeholder="••••••••" required
-          style="width:100%; padding:14px 18px; font-family:'Cormorant Garamond',Georgia,serif; font-size:1.05rem;
-          color:rgba(255,255,255,.88); background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.06);
-          border-radius:8px; outline:none; transition:border-color .4s, background .4s;">
-        <button class="btn" type="submit">Enter</button>
-      </form>
-      <p id="videoPassError" style="color:rgba(180,60,60,.7); font-size:.75rem; letter-spacing:.08em; min-height:1.2em; margin-top:8px;"></p>
-    </div>
-
-    <!-- Content (hidden until password entered) -->
-    <div id="videoContent" style="display:none;">
+    <div id="videoContent" style="display:block;">
       <!-- Upgrade banner (shown to non-premium users) -->
       <div class="upgrade-banner" id="upgradeBanner">
         <h2>Unlock Videos</h2>
-        <p>Get access to exclusive video content with a premium subscription</p>
-        <div class="price">$XX<span style="font-size:.9rem; color:rgba(255,255,255,.4);">/mo</span></div>
+        <p>Upgrade to Superfan for video access.</p>
+        <div class="price">$9.99<span style="font-size:.9rem; color:rgba(255,255,255,.4);">/mo</span></div>
         <p class="price-period">cancel anytime</p>
-        <button class="btn btn-accent" onclick="upgradeToPremium()">Upgrade to Premium</button>
+        <button class="btn btn-accent" onclick="upgradeToSuperfan()">Upgrade to Superfan</button>
       </div>
 
       <!-- Video grid -->
@@ -55,43 +41,21 @@
   </main>
 
   <footer class="site-footer">
-    &copy; 2026 Zoe Lane · Exclusive
+    &copy; 2026 Relax with Zoe Lane
   </footer>
 
   <script src="assets/js/auth.js"></script>
   <script src="assets/js/stripe.js"></script>
   <script>
-    if (!requireAuth()) throw new Error('Not authenticated');
+    (async function() {
+    const ok = await requireAuth({ minTier: 'fan' });
+    if (!ok) return;
 
     const tier = getUserTier();
-    const hasPremium = (tier === 'premium' || tier === 'admin');
+    const hasSuperfan = (tier === 'superfan');
+    renderVideos(hasSuperfan);
 
-    /* ── Password gate for videos ── */
-    const gate = document.getElementById('videoGate');
-    const content = document.getElementById('videoContent');
-
-    /* Check if already unlocked this session */
-    if (sessionStorage.getItem('video_unlocked') === '1') {
-      gate.style.display = 'none';
-      content.style.display = '';
-      renderVideos();
-    }
-
-    document.getElementById('videoPassForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const pw = document.getElementById('videoPass').value;
-      const valid = await verifyAdmin(pw);
-      if (valid) {
-        sessionStorage.setItem('video_unlocked', '1');
-        gate.style.display = 'none';
-        content.style.display = '';
-        renderVideos();
-      } else {
-        document.getElementById('videoPassError').textContent = 'Wrong password';
-      }
-    });
-
-    function renderVideos() {
+    function renderVideos(hasSuperfan) {
       /* ── Video data — add your videos here ── */
       const videos = [
         { src: null, thumb: null, title: 'Video 1' },
@@ -105,7 +69,7 @@
       const grid = document.getElementById('videoGrid');
       const banner = document.getElementById('upgradeBanner');
 
-      if (hasPremium) {
+      if (hasSuperfan) {
         banner.style.display = 'none';
         grid.style.display = '';
 
@@ -140,6 +104,7 @@
         });
       }
     }
+    })();
   </script>
 
 </body>

@@ -567,6 +567,49 @@ body.inner-page::after {
   margin-bottom: 28px;
   letter-spacing: .06em;
 }
+
+.plans-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 18px;
+  max-width: 760px;
+  margin: 0 auto;
+}
+.plan-card {
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 14px;
+  padding: 30px 24px;
+  background: rgba(255,255,255,.03);
+  text-align: center;
+}
+.plan-card-accent {
+  border-color: rgba(120,25,35,.35);
+  background: linear-gradient(135deg, rgba(120,25,35,.18), rgba(255,255,255,.03));
+}
+.plan-card h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2rem;
+  font-weight: 400;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.85);
+  margin-bottom: 10px;
+}
+.plan-price {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  color: rgba(255,255,255,.9);
+  margin-bottom: 10px;
+}
+.plan-price span {
+  font-size: .85rem;
+  color: rgba(255,255,255,.45);
+}
+.plan-desc {
+  font-size: .82rem;
+  color: rgba(255,255,255,.4);
+  margin-bottom: 20px;
+}
 .price {
   font-family: 'Playfair Display', serif;
   font-size: 2.2rem;
